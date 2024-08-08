@@ -1,0 +1,41 @@
+ARG PHP_VERSION
+ARG PHP_TYPE
+ARG PHP_VARIANT
+
+FROM php:${PHP_VERSION}-${PHP_TYPE}-${PHP_VARIANT}
+
+RUN apk update && apk add --no-cache \
+    unzip \
+    autoconf \
+    build-base \
+    icu-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    libxml2-dev \
+    zlib-dev \
+    oniguruma-dev \
+    linux-headers \
+    shadow \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) intl pdo_mysql zip gd opcache mbstring \
+    && pecl install xdebug apcu \
+    && docker-php-ext-enable xdebug apcu \
+    && apk del autoconf build-base linux-headers \
+    && apk add --no-cache \
+        libpng \
+        libjpeg-turbo \
+        freetype \
+        libzip \
+        libxml2 \
+        zlib \
+        icu \
+        oniguruma
+
+ARG UID
+ARG GID
+
+RUN usermod  --uid ${UID} www-data \
+    && groupmod --gid ${GID} www-data \
+    && chown www-data /var/www/html

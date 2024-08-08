@@ -1,0 +1,64 @@
+.DEFAULT_GOAL := help
+
+PROJECT_NAME=$PROJECT_NAME
+
+build: docker-build docker-up
+
+restart: docker-down docker-up
+
+docker-build:
+	@docker compose build
+
+docker-up:
+	@docker compose up -d
+
+docker-down:
+	@docker compose down
+
+composer-install:
+	@docker compose run --rm composer_$(PROJECT_NAME) install
+
+composer-update:
+	@docker compose run --rm composer_$(PROJECT_NAME) update
+
+composer-require:
+	@docker compose run --rm composer_$(PROJECT_NAME) require $(package)
+
+composer-require-dev:
+	@docker compose run --rm composer_$(PROJECT_NAME) require $(package) --dev
+
+npm-install:
+	@docker compose run --rm node_$(PROJECT_NAME) install
+
+npm-update:
+	@docker compose run --rm node_$(PROJECT_NAME) update
+
+npm-install-package:
+	@docker compose run --rm node_$(PROJECT_NAME) install $(package)
+
+npm-install-package-dev:
+	@docker compose run --rm node_$(PROJECT_NAME) install $(package) --save-dev
+
+npm-run-dev:
+	@docker compose run --rm node_$(PROJECT_NAME) run dev
+
+npm-run-watch:
+	@docker compose run --rm node_$(PROJECT_NAME) run watch
+
+npm-run-build:
+	@docker compose run --rm node_$(PROJECT_NAME) run build
+
+cache-clear:
+	@docker exec -it php_$(PROJECT_NAME) php bin/console c:c
+
+help:
+	@echo "Comandos disponibles:"
+	@echo "  up                 - Inicia los contenedores de Docker"
+	@echo "  down               - Detiene los contenedores de Docker"
+	@echo "  build              - Construye las imágenes de Docker"
+	@echo "  restart            - Reinicia los contenedores de Docker"
+	@echo "  install-symfony    - Instala Symfony en el directorio raíz"
+	@echo "  composer-install   - Ejecuta 'composer install' en el contenedor de Composer"
+	@echo "  composer-update    - Ejecuta 'composer update' en el contenedor de Composer"
+	@echo "  composer-require   - Ejecuta 'composer require <package>' en el contenedor de Composer (use 'make composer-require package=<package>')"
+	@echo "  help               - Muestra esta ayuda"
